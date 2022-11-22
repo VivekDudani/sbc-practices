@@ -1,0 +1,40 @@
+type UserDetails {
+  id: ID
+  userName: String!
+  fullName: String!
+}
+
+type DailyPractices {
+  id: ID!
+  userDetails: UserDetails
+  practiceDate: Date!
+  ssip: Boolean
+  spp: Boolean
+  chanting: Int
+  hkm: Int
+  scs: Int
+  pf: Int
+  bg: String
+  sp: String
+  ot: String
+}
+
+#input {
+# input model class that can be passed to query/mutation
+#}
+
+scalar Date
+
+type Query {
+  firstQuery : String
+  getAllDailyPractices: [DailyPractices]
+  getAllPracticesByUserName(userName : String) : [DailyPractices]
+  getPracticesByDateRange(practiceStartDate: Date, practiceEndDate: Date): [DailyPractices]
+  getPracticesByUserNameAndDate(userName : String, practiceStartDate: Date, practiceEndDate: Date): [DailyPractices]
+}
+
+type Mutation {
+  createOrUpdateDailyPractice(userName: String!, fullName: String, practiceDate: Date!, ssip: Boolean, spp: Boolean,
+    chanting: Int, hkm: Int, scs: Int, pf: Int, bg: String,
+    spPost: String, others: String) : DailyPractices
+}
