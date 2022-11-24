@@ -13,11 +13,16 @@ import javax.persistence.*;
 @Table
 public class WeeklyTotals {
 
-    @EmbeddedId
-    private WeeklyId id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    private Integer id;
+
+    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @JoinColumn(name = "week_number")
+    private WeekInfo weekId;
 
     @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "user_details_id", referencedColumnName = "id")
+    @JoinColumn(name = "user_details_id")
     private UserDetails userDetails;
 
     @Column(name = "SSIP")

@@ -3,7 +3,8 @@ package com.soulpeace.sbc.controller;
 import com.soulpeace.sbc.data.entity.DailyPractices;
 import com.soulpeace.sbc.data.entity.UserDetails;
 import com.soulpeace.sbc.data.repository.DailyPracticesRepository;
-import com.soulpeace.sbc.data.repository.UserDetailsRepository;
+import com.soulpeace.sbc.service.UserDetailsService;
+import com.soulpeace.sbc.service.WeekInfoService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Controller;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @AllArgsConstructor
@@ -21,7 +23,9 @@ public class DailyPracticesController {
 
     private final DailyPracticesRepository dailyPracticesRepository;
 
-    private final UserDetailsRepository userDetailsRepository;
+    private final UserDetailsService userDetailsService;
+
+    private final WeekInfoService weekInfoService;
 
     @QueryMapping
     public List<DailyPractices> getAllDailyPractices() {
@@ -47,14 +51,20 @@ public class DailyPracticesController {
         return dailyPracticesRepository.findByUserNameAndDateBetween(userName, practiceStartDate, practiceEndDate);
     }
 
+    @QueryMapping
+    public Set<UserDetails> getAllUsersByUserCreatedByField(@Argument String userName) {
+        return userDetailsService.findAllByUserCreatedBy(userName);
+    }
+
     @MutationMapping
     public DailyPractices createOrUpdateDailyPractice(@Argument String userName, @Argument String fullName, @Argument LocalDate practiceDate,
                                               @Argument Boolean ssip, @Argument Boolean spp, @Argument Integer chanting,
                                               @Argument Integer hkm, @Argument Integer scs, @Argument Integer pf,
-                                              @Argument String spPost, @Argument String bg, @Argument String others) {
-        System.out.println("createDailyPractice invoked");
+                                              @Argument String spPost, @Argument String bg, @Argument String others,
+                                              @Argument boolean isUserAuthenticated, @Argument String userCreatedBy) {
+        log.info("createOrUpdateDailyPractice invoked for Date: {}, User: {}, UserCreatedBy: {}", practiceDate, userName, userCreatedBy);
 
-        UserDetails userDetail = getOrCreateUserDetails(userName, fullName);
+        UserDetails userDetail = getOrCreateUserDetails(userName, fullName, isUserAuthenticated, userCreatedBy);
         DailyPractices dailyPractice = new DailyPractices();
 
         List<DailyPractices> dailyPracticesExistForUser = dailyPracticesRepository.findByUserNameAndDateBetween(userName,
@@ -82,16 +92,14 @@ public class DailyPracticesController {
         dailyPractice.setBg(bg);
         dailyPractice.setOt(others);
 
+        weekInfoService.addWeekInformation(practiceDate);
+
         return dailyPracticesRepository.save(dailyPractice);
     }
 
-    private UserDetails getOrCreateUserDetails(String userName, String fullName) {
-        UserDetails userDetail = userDetailsRepository.findByUserName(userName);
-        if (userDetail == null) {
-            log.info("Creating new User with UserName: {} and FullName: {}", userName, fullName);
-            userDetail = new UserDetails(userName, fullName);
-        }
-        return userDetail;
+    private UserDetails getOrCreateUserDetails(String userName, String fullName, boolean isAuthenticated,
+                                               String userCreatedBy) {
+        return userDetailsService.getOrCreateUserDetails(userName, fullName, isAuthenticated, userCreatedBy);
     }
 
     //    @SchemaMapping(typeName = "Query", value = "firstQuery")

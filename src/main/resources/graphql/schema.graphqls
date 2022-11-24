@@ -2,6 +2,9 @@ type UserDetails {
   id: ID
   userName: String!
   fullName: String!
+  isActive: Boolean
+  isAuthenticated: Boolean
+  userCreatedBy: UserDetails
 }
 
 type DailyPractices {
@@ -31,10 +34,11 @@ type Query {
   getAllPracticesByUserName(userName : String) : [DailyPractices]
   getPracticesByDateRange(practiceStartDate: Date, practiceEndDate: Date): [DailyPractices]
   getPracticesByUserNameAndDate(userName : String, practiceStartDate: Date, practiceEndDate: Date): [DailyPractices]
+  getAllUsersByUserCreatedByField(userName : String) : [UserDetails]
 }
 
 type Mutation {
   createOrUpdateDailyPractice(userName: String!, fullName: String, practiceDate: Date!, ssip: Boolean, spp: Boolean,
-    chanting: Int, hkm: Int, scs: Int, pf: Int, bg: String,
-    spPost: String, others: String) : DailyPractices
+    chanting: Int, hkm: Int, scs: Int, pf: Int, bg: String, spPost: String, others: String,
+    isUserAuthenticated: Boolean, userCreatedBy: String) : DailyPractices
 }

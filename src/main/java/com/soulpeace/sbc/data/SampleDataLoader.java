@@ -5,6 +5,7 @@ import com.soulpeace.sbc.data.entity.DailyPractices;
 import com.soulpeace.sbc.data.entity.UserDetails;
 import com.soulpeace.sbc.data.repository.DailyPracticesRepository;
 import com.soulpeace.sbc.data.repository.UserDetailsRepository;
+import com.soulpeace.sbc.service.WeekInfoService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -22,8 +23,9 @@ import java.util.stream.IntStream;
 @Component
 public class SampleDataLoader implements CommandLineRunner {
 
-    private final UserDetailsRepository userDetailsRepository;
     private final DailyPracticesRepository dailyPracticesRepository;
+
+    private final WeekInfoService weekInfoService;
 
     @Override
     public void run(String... args) {
@@ -36,8 +38,10 @@ public class SampleDataLoader implements CommandLineRunner {
     private void addDailyPracticeAndUserDetailsData(Faker faker) {
         List<DailyPractices> dailyPracticesList = IntStream.rangeClosed(1,100)
                 .mapToObj(i -> {
-                    UserDetails userDetails = new UserDetails(i, faker.name().username(), faker.name().fullName());
-                    return new DailyPractices(i, userDetails, LocalDate.ofInstant(faker.date().past(2021, TimeUnit.DAYS).toInstant(), ZoneId.of("UTC")) /*LocalDate.now()*/ /*new Timestamp(Instant.now().toEpochMilli())*/,
+                    UserDetails userDetails = new UserDetails(faker.name().username(), faker.name().fullName(), faker.bool().bool(), null);
+                    LocalDate practiceDate = LocalDate.ofInstant(faker.date().past(2021, TimeUnit.DAYS).toInstant(), ZoneId.of("UTC")); /*LocalDate.now()*/ /*new Timestamp(Instant.now().toEpochMilli())*/
+                    weekInfoService.addWeekInformation(practiceDate);
+                    return new DailyPractices(i, userDetails, practiceDate,
                             faker.bool().bool(), faker.bool().bool(),
                             faker.random().nextInt(100), faker.random().nextInt(10), faker.random().nextInt(5),
                             faker.random().nextInt(5), "SP-"+faker.random().nextInt(550),
