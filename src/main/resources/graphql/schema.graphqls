@@ -17,9 +17,38 @@ type DailyPractices {
   hkm: Int
   scs: Int
   pf: Int
+  bgCount: Int
   bg: String
+  spPostCount : Int
   sp: String
+  otCount: Int
   ot: String
+}
+
+type WeeklyTotals {
+  id: ID!
+  weekInfo: WeekInfo
+  userDetails: UserDetails
+  ssip: Boolean
+  spp: Boolean
+  chanting: Int!
+  hkm: Boolean
+  scs: Boolean
+  pf: Boolean
+  bg: Boolean
+  sp: Boolean
+  ot: Boolean
+}
+
+type WeekInfo {
+  weekNumber: Int
+  weekStartDate: Date
+  weekEndDate: Date
+}
+
+type SbcPractices {
+  userName: String
+  practices: [DailyPractices]
 }
 
 #input {
@@ -32,13 +61,17 @@ type Query {
   firstQuery : String
   getAllDailyPractices: [DailyPractices]
   getAllPracticesByUserName(userName : String) : [DailyPractices]
-  getPracticesByDateRange(practiceStartDate: Date, practiceEndDate: Date): [DailyPractices]
+  getPracticesByDateRange(practiceStartDate: Date, practiceEndDate: Date): [SbcPractices]
   getPracticesByUserNameAndDate(userName : String, practiceStartDate: Date, practiceEndDate: Date): [DailyPractices]
   getAllUsersByUserCreatedByField(userName : String) : [UserDetails]
+  getWeeklyTotalsForTheWeek(dateOfTheWeek : Date) : [WeeklyTotals]
+  #TODO Schedule this task
+  aggregateAllPracticesForGivenWeek(practiceDate : Date) : [WeeklyTotals]
+  activateDeactivateUser(userName : String, isActive : Boolean) : [UserDetails]
 }
 
 type Mutation {
   createOrUpdateDailyPractice(userName: String!, fullName: String, practiceDate: Date!, ssip: Boolean, spp: Boolean,
-    chanting: Int, hkm: Int, scs: Int, pf: Int, bg: String, spPost: String, others: String,
-    isUserAuthenticated: Boolean, userCreatedBy: String) : DailyPractices
+    chanting: Int, hkm: Int, scs: Int, pf: Int, bgCount: Int, bg: String, spPostCount: Int, spPost: String, otCount: Int,
+    others: String, isUserAuthenticated: Boolean, userCreatedBy: String) : DailyPractices
 }

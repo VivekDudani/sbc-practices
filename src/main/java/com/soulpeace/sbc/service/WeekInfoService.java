@@ -7,4 +7,6 @@ import java.time.LocalDate;
 public interface WeekInfoService {
 
     WeekInfo addWeekInformation(LocalDate currentDate);
+
+    WeekInfo getWeekInformationByGivenDate(LocalDate currentDate);
 }

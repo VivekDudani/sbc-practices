@@ -15,6 +15,12 @@ public interface DailyPracticesRepository extends JpaRepository<DailyPractices, 
     @Query("From DailyPractices as dp where dp.practiceDate between ?1 and ?2")
     List<DailyPractices> findByDateBetween(LocalDate practiceStartDate, LocalDate practiceEndDate);
 
+    @Query("From DailyPractices as dp where dp.practiceDate between ?1 and ?2 order by dp.userDetails")
+    List<DailyPractices> findByDateBetweenOOrderByUserDetails(LocalDate practiceStartDate, LocalDate practiceEndDate);
+
+    @Query("From DailyPractices as dp where dp.practiceDate between ?1 and ?2 order by dp.userDetails, dp.practiceDate")
+    List<DailyPractices> findByDateBetweenOrderByUserDetailsAndDate(LocalDate practiceStartDate, LocalDate practiceEndDate);
+
     @Query("From DailyPractices as dp where dp.userDetails.userName = ?1 and dp.practiceDate between ?2 and ?3")
     List<DailyPractices> findByUserNameAndDateBetween(String userName, LocalDate practiceStartDate, LocalDate practiceEndDate);
 }

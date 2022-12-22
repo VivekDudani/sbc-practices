@@ -14,31 +14,41 @@ import javax.persistence.*;
 public class WeeklyTotals {
 
     @Id
+    @SequenceGenerator(name = "sequence_weekly_totals")
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Integer id;
 
-    @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
-    @JoinColumn(name = "week_number")
-    private WeekInfo weekId;
+    @OneToOne(cascade = {CascadeType.ALL/*, CascadeType.MERGE, CascadeType.REFRESH*/})
+    @JoinColumn(name = "week_info_id")
+    private WeekInfo weekInfo;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_details_id")
     private UserDetails userDetails;
 
     @Column(name = "SSIP")
-    private Boolean ssip;
+    private Boolean ssip = false;
 
     @Column(name = "SPP")
-    private Boolean spp;
+    private Boolean spp = false;
 
     @Column(name="total_chanting")
-    private Integer chanting;
-    private Boolean hkm;
-    private Boolean scs;
+    private Integer chanting = 0;
+
+    private Boolean hkm = false;
+    private Boolean scs = false;
+    private Boolean pf = false;
 
     @Column(name = "SP_Posts")
-    private Boolean sp;
+    private Boolean sp = false;
+
+    @Column(name = "bg_sb_cc")
+    private Boolean bg = false;
 
     @Column(name = "Others")
-    private Boolean ot;
+    private Boolean ot = false;
+
+    public void incrementChantingCountBy(int count) {
+        chanting += count;
+    }
 }

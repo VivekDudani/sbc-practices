@@ -37,4 +37,10 @@ public class WeekInfoServiceImpl implements WeekInfoService {
         }
         return weekInfo;
     }
+
+    @Override
+    public WeekInfo getWeekInformationByGivenDate(LocalDate currentDate) {
+        LocalDate firstMondayOfWeek = currentDate.with(previousOrSame(MONDAY));
+        return weekInfoRepository.findByWeekStartDate(firstMondayOfWeek);
+    }
 }

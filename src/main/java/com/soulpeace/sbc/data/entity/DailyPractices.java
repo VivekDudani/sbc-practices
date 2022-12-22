@@ -35,16 +35,25 @@ public class DailyPractices {
     @Column(name = "SPP")
     private Boolean spp;
 
-    private Integer chanting;
-    private Integer hkm;
-    private Integer scs;
-    private Integer pf;
+    private Integer chanting = 0;
+    private Integer hkm = 0;
+    private Integer scs = 0;
+    private Integer pf = 0;
 
-    @Column(name = "SP_Posts")
+    @Column(name = "sp_posts_count")
+    private Integer spPostCount = 0;
+
+    @Column(name = "sp_posts")
     private String sp;
+
+    @Column(name = "bg_sb_cc_count")
+    private Integer bgCount = 0;
 
     @Column(name = "BG_SB_CC")
     private String bg;
+
+    @Column(name = "others_count")
+    private Integer otCount = 0;
 
     @Column(name = "Others")
     private String ot;

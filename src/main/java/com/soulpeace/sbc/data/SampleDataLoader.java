@@ -1,6 +1,7 @@
 package com.soulpeace.sbc.data;
 
 import com.github.javafaker.Faker;
+import com.soulpeace.sbc.controller.DailyPracticesController;
 import com.soulpeace.sbc.data.entity.DailyPractices;
 import com.soulpeace.sbc.data.entity.UserDetails;
 import com.soulpeace.sbc.data.repository.DailyPracticesRepository;
@@ -27,6 +28,8 @@ public class SampleDataLoader implements CommandLineRunner {
 
     private final WeekInfoService weekInfoService;
 
+    private final DailyPracticesController dailyPracticesController;
+
     @Override
     public void run(String... args) {
         log.info("Loading sample data...");
@@ -36,16 +39,20 @@ public class SampleDataLoader implements CommandLineRunner {
     }
 
     private void addDailyPracticeAndUserDetailsData(Faker faker) {
-        List<DailyPractices> dailyPracticesList = IntStream.rangeClosed(1,100)
+        List<String> userNames = List.of("radhe.krishna", "mahaprabhu", "ram");
+        List<DailyPractices> dailyPracticesList = IntStream.rangeClosed(1,20)
                 .mapToObj(i -> {
-                    UserDetails userDetails = new UserDetails(faker.name().username(), faker.name().fullName(), faker.bool().bool(), null);
-                    LocalDate practiceDate = LocalDate.ofInstant(faker.date().past(2021, TimeUnit.DAYS).toInstant(), ZoneId.of("UTC")); /*LocalDate.now()*/ /*new Timestamp(Instant.now().toEpochMilli())*/
+//                    UserDetails userDetails = new UserDetails(faker.name().username(), faker.name().fullName(), faker.bool().bool(), null);
+                    LocalDate practiceDate = LocalDate.ofInstant(faker.date().past(10, TimeUnit.DAYS).toInstant(), ZoneId.of("UTC")); /*LocalDate.now()*/ /*new Timestamp(Instant.now().toEpochMilli())*/
                     weekInfoService.addWeekInformation(practiceDate);
-                    return new DailyPractices(i, userDetails, practiceDate,
+                    return dailyPracticesController.createOrUpdateDailyPractice(faker.name().username(), faker.name().fullName(),
+                            practiceDate,
                             faker.bool().bool(), faker.bool().bool(),
                             faker.random().nextInt(100), faker.random().nextInt(10), faker.random().nextInt(5),
-                            faker.random().nextInt(5), "SP-"+faker.random().nextInt(550),
-                            "BG-"+faker.random().nextInt(55), "Others");
+                            faker.random().nextInt(5), faker.random().nextInt(10), "SP-"+faker.random().nextInt(550),
+                            faker.random().nextInt(3), "BG-"+faker.random().nextInt(55),
+                            faker.random().nextInt(5), "Others",
+                            faker.bool().bool(), null);
                 })
                 .collect(Collectors.toList());
         dailyPracticesRepository.saveAll(dailyPracticesList);

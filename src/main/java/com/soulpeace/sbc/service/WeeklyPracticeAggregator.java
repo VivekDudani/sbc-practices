@@ -1,15 +1,11 @@
 package com.soulpeace.sbc.service;
 
-import com.soulpeace.sbc.data.repository.DailyPracticesRepository;
-import com.soulpeace.sbc.data.repository.WeeklyTotalsRepository;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
+import com.soulpeace.sbc.data.entity.WeeklyTotals;
 
-@Component
-@AllArgsConstructor
-public class WeeklyPracticeAggregator {
+import java.time.LocalDate;
+import java.util.List;
 
-    private final DailyPracticesRepository dailyPracticesRepository;
+public interface WeeklyPracticeAggregator {
 
-    private final WeeklyTotalsRepository weeklyTotalsRepository;
+    List<WeeklyTotals> aggregateAllPracticesForGivenWeek(LocalDate practiceDate);
 }

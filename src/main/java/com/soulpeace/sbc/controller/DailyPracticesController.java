@@ -2,9 +2,9 @@ package com.soulpeace.sbc.controller;
 
 import com.soulpeace.sbc.data.entity.DailyPractices;
 import com.soulpeace.sbc.data.entity.UserDetails;
-import com.soulpeace.sbc.data.repository.DailyPracticesRepository;
-import com.soulpeace.sbc.service.UserDetailsService;
-import com.soulpeace.sbc.service.WeekInfoService;
+import com.soulpeace.sbc.data.entity.WeeklyTotals;
+import com.soulpeace.sbc.data.model.PracticeDataWrapper;
+import com.soulpeace.sbc.service.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.graphql.data.method.annotation.Argument;
@@ -21,34 +21,39 @@ import java.util.Set;
 @Slf4j
 public class DailyPracticesController {
 
-    private final DailyPracticesRepository dailyPracticesRepository;
+    private final DailyPracticesService dailyPracticesService;
 
     private final UserDetailsService userDetailsService;
 
     private final WeekInfoService weekInfoService;
 
+    private final WeeklyPracticeAggregator weeklyPracticeAggregator;
+
+    private final WeeklyTotalsService weeklyTotalsService;
+
     @QueryMapping
     public List<DailyPractices> getAllDailyPractices() {
-        return dailyPracticesRepository.findAll();
+        return dailyPracticesService.getAllDailyPractices();
     }
 
     @QueryMapping
     public List<DailyPractices> getAllPracticesByUserName(@Argument String userName) {
         log.info("getAllPracticesByUserName invoked for user {}", userName);
-        return dailyPracticesRepository.findAllByUserName(userName);
+        return dailyPracticesService.getAllPracticesByUserName(userName);
     }
 
     @QueryMapping
-    public List<DailyPractices> getPracticesByDateRange(@Argument LocalDate practiceStartDate, @Argument LocalDate practiceEndDate) {
+    public List<PracticeDataWrapper> getPracticesByDateRange(@Argument LocalDate practiceStartDate, @Argument LocalDate practiceEndDate) {
         log.info("getPracticesByDateRange invoked for date range {} and {}", practiceStartDate, practiceEndDate);
-        return dailyPracticesRepository.findByDateBetween(practiceStartDate, practiceEndDate);
+        return dailyPracticesService.getPracticesByDateRangeSortedByUserAndDate(practiceStartDate, practiceEndDate);
     }
 
     @QueryMapping
     public List<DailyPractices> getPracticesByUserNameAndDate(@Argument String userName, @Argument LocalDate practiceStartDate,
-                                                          @Argument LocalDate practiceEndDate) {
-        System.out.println("getPracticesByUserNameAndDate invoked for "+ userName + " and " + practiceStartDate + " and " + practiceEndDate);
-        return dailyPracticesRepository.findByUserNameAndDateBetween(userName, practiceStartDate, practiceEndDate);
+                                                              @Argument LocalDate practiceEndDate) {
+        log.info("getPracticesByUserNameAndDate invoked for {}" + userName + " and " + practiceStartDate + " and "
+                + practiceEndDate);
+        return dailyPracticesService.getPracticesByUserNameAndDate(userName, practiceStartDate, practiceEndDate);
     }
 
     @QueryMapping
@@ -56,55 +61,34 @@ public class DailyPracticesController {
         return userDetailsService.findAllByUserCreatedBy(userName);
     }
 
+    @QueryMapping
+    public List<WeeklyTotals> aggregateAllPracticesForGivenWeek(@Argument LocalDate practiceDate) {
+        return weeklyPracticeAggregator.aggregateAllPracticesForGivenWeek(practiceDate);
+    }
+
+    @QueryMapping
+    public UserDetails activateDeactivateUser(String userName, boolean isActive) {
+        return userDetailsService.activateDeactivateUser(userName, isActive);
+    }
+
+    @QueryMapping
+    public List<WeeklyTotals> getWeeklyTotalsForTheWeek(LocalDate dateOfTheWeek) {
+        return weeklyTotalsService.getWeeklyTotalsForTheWeek(dateOfTheWeek);
+    }
+
     @MutationMapping
     public DailyPractices createOrUpdateDailyPractice(@Argument String userName, @Argument String fullName, @Argument LocalDate practiceDate,
-                                              @Argument Boolean ssip, @Argument Boolean spp, @Argument Integer chanting,
-                                              @Argument Integer hkm, @Argument Integer scs, @Argument Integer pf,
-                                              @Argument String spPost, @Argument String bg, @Argument String others,
-                                              @Argument boolean isUserAuthenticated, @Argument String userCreatedBy) {
+                                                      @Argument Boolean ssip, @Argument Boolean spp, @Argument Integer chanting,
+                                                      @Argument Integer hkm, @Argument Integer scs, @Argument Integer pf,
+                                                      @Argument Integer spPostCount, @Argument String spPost, @Argument Integer bgCount,
+                                                      @Argument String bg, @Argument Integer otCount, @Argument String others,
+                                                      @Argument boolean isUserAuthenticated, @Argument String userCreatedBy) {
+
         log.info("createOrUpdateDailyPractice invoked for Date: {}, User: {}, UserCreatedBy: {}", practiceDate, userName, userCreatedBy);
-
-        UserDetails userDetail = getOrCreateUserDetails(userName, fullName, isUserAuthenticated, userCreatedBy);
-        DailyPractices dailyPractice = new DailyPractices();
-
-        List<DailyPractices> dailyPracticesExistForUser = dailyPracticesRepository.findByUserNameAndDateBetween(userName,
-                practiceDate, practiceDate);
-        //Entry exist for this user and date
-        if (!dailyPracticesExistForUser.isEmpty()) {
-            if (dailyPracticesExistForUser.size() > 1) {
-                log.error("More than 1 practice exist for user {} and Date {}", userName, practiceDate);
-                throw new IllegalStateException(String.format("More than 1 practice exist for user %s and Date %s", userName,
-                        practiceDate));
-            }
-            log.info("Practice exist already for user: {} and Date: {}. Updating it.", userName, practiceDate);
-            dailyPractice = dailyPracticesExistForUser.get(0);
-        }
-
-        dailyPractice.setUserDetails(userDetail);
-        dailyPractice.setPracticeDate(practiceDate);
-        dailyPractice.setSsip(ssip);
-        dailyPractice.setSpp(spp);
-        dailyPractice.setChanting(chanting);
-        dailyPractice.setHkm(hkm);
-        dailyPractice.setScs(scs);
-        dailyPractice.setPf(pf);
-        dailyPractice.setSp(spPost);
-        dailyPractice.setBg(bg);
-        dailyPractice.setOt(others);
-
+        //TODO Exception handling
+        UserDetails userDetail = userDetailsService.getOrCreateUserDetails(userName, fullName, isUserAuthenticated, userCreatedBy);
         weekInfoService.addWeekInformation(practiceDate);
-
-        return dailyPracticesRepository.save(dailyPractice);
-    }
-
-    private UserDetails getOrCreateUserDetails(String userName, String fullName, boolean isAuthenticated,
-                                               String userCreatedBy) {
-        return userDetailsService.getOrCreateUserDetails(userName, fullName, isAuthenticated, userCreatedBy);
-    }
-
-    //    @SchemaMapping(typeName = "Query", value = "firstQuery")
-    @QueryMapping
-    public String firstQuery () {
-        return "First Query";
+        return dailyPracticesService.addDailyPractices(userDetail, practiceDate, ssip, spp, chanting, hkm, scs, pf, spPostCount,
+                spPost, bgCount, bg, otCount, others);
     }
 }
