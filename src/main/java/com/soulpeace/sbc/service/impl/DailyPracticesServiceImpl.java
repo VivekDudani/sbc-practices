@@ -22,11 +22,12 @@ public class DailyPracticesServiceImpl implements DailyPracticesService {
 
     @Override
     public DailyPractices addDailyPractices(UserDetails userDetail, LocalDate practiceDate, Boolean ssip, Boolean spp, Integer chanting,
-                                            Integer hkm, Integer scs, Integer pf, Integer spPostCount, String spPost, Integer bgCount, String bg, Integer otCount, String others) {
+                                            Integer hkm, Integer scs, Integer pf, Integer rr, Integer spPostCount, String spPost,
+                                            Integer bgCount, String bg, Integer otCount, String others) {
         DailyPractices dailyPractice = new DailyPractices();
 
         String userName = userDetail.getUserName();
-        List<DailyPractices> dailyPracticesExistForUser = getPracticesByUserNameAndDate(userName,
+        List<DailyPractices> dailyPracticesExistForUser = getPracticesByUserNameAndDateSortedByDate(userName,
                 practiceDate, practiceDate);
         //Check if entry exist for this user and date
         if (!dailyPracticesExistForUser.isEmpty()) {
@@ -47,6 +48,7 @@ public class DailyPracticesServiceImpl implements DailyPracticesService {
         dailyPractice.setHkm(hkm);
         dailyPractice.setScs(scs);
         dailyPractice.setPf(pf);
+        dailyPractice.setRr(rr);
         dailyPractice.setSpPostCount(spPostCount);
         dailyPractice.setSp(spPost);
         dailyPractice.setBgCount(bgCount);
@@ -68,19 +70,20 @@ public class DailyPracticesServiceImpl implements DailyPracticesService {
     }
 
     @Override
-    public List<DailyPractices> getPracticesByDateRange(LocalDate practiceStartDate, LocalDate practiceEndDate) {
-        return dailyPracticesRepository.findByDateBetween(practiceStartDate, practiceEndDate);
-    }
-
-    @Override
     public List<DailyPractices> getPracticesByDateRangeSortedByUser(LocalDate practiceStartDate, LocalDate practiceEndDate) {
         return dailyPracticesRepository.findByDateBetweenOOrderByUserDetails(practiceStartDate, practiceEndDate);
     }
 
     @Override
     public List<PracticeDataWrapper> getPracticesByDateRangeSortedByUserAndDate(LocalDate practiceStartDate, LocalDate practiceEndDate) {
-        List<DailyPractices> dailyPractices = dailyPracticesRepository.findByDateBetweenOrderByUserDetailsAndDate(practiceStartDate, practiceEndDate);
+        List<DailyPractices> dailyPractices = dailyPracticesRepository.
+                findByDateBetweenOrderByUserDetailsAndDate(practiceStartDate, practiceEndDate);
 
+        //        System.out.println(wrapper);
+        return getSbcPracticesWrapper(dailyPractices);
+    }
+
+    private List<PracticeDataWrapper> getSbcPracticesWrapper(List<DailyPractices> dailyPractices) {
         List<PracticeDataWrapper> wrapper = new ArrayList<>(10);
         String prevUser = "";
         List<DailyPractices> individualPractices = new ArrayList<>(7);
@@ -96,13 +99,12 @@ public class DailyPracticesServiceImpl implements DailyPracticesService {
         }
         //last entry
         wrapper.add(new PracticeDataWrapper(prevUser, individualPractices));
-        System.out.println(wrapper);
 
         return wrapper;
     }
 
     @Override
-    public List<DailyPractices> getPracticesByUserNameAndDate(String userName, LocalDate practiceStartDate, LocalDate practiceEndDate) {
-        return dailyPracticesRepository.findByUserNameAndDateBetween(userName, practiceStartDate, practiceEndDate);
+    public List<DailyPractices> getPracticesByUserNameAndDateSortedByDate(String userName, LocalDate practiceStartDate, LocalDate practiceEndDate) {
+        return dailyPracticesRepository.findByUserNameAndDateBetweenOrderByDate(userName, practiceStartDate, practiceEndDate);
     }
 }

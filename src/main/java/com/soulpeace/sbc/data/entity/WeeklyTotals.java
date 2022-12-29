@@ -38,6 +38,7 @@ public class WeeklyTotals {
     private Boolean hkm = false;
     private Boolean scs = false;
     private Boolean pf = false;
+    private Boolean rr = false;
 
     @Column(name = "SP_Posts")
     private Boolean sp = false;

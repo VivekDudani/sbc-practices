@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -42,6 +43,9 @@ public class WeeklyPracticeAggregatorImpl implements WeeklyPracticeAggregator {
     @Override
     public List<WeeklyTotals> aggregateAllPracticesForGivenWeek(LocalDate practiceDate) {
         weekInfo = weekInfoService.getWeekInformationByGivenDate(practiceDate);
+        if (weekInfo == null) {
+            return Collections.emptyList();
+        }
         LocalDate weekStartDate = weekInfo.getWeekStartDate();
         LocalDate weekEndDate = weekInfo.getWeekEndDate();
 
@@ -49,7 +53,7 @@ public class WeeklyPracticeAggregatorImpl implements WeeklyPracticeAggregator {
                 weekStartDate, weekEndDate);
         if (allPracticesForTheWeek.isEmpty()) {
             log.info("No practices found for the given week- WeekStartDate: {}, WeekEndDate: {}", weekStartDate, weekEndDate);
-            return null;
+            return Collections.emptyList();
         }
         return aggregate(allPracticesForTheWeek);
     }
@@ -74,6 +78,7 @@ public class WeeklyPracticeAggregatorImpl implements WeeklyPracticeAggregator {
             Optional.of(dailyPractice.getHkm()).filter(hCount -> hCount > 0).ifPresent(p -> weeklyTotals.setHkm(true));
             Optional.of(dailyPractice.getScs()).filter(scsCount -> scsCount > 0).ifPresent(p -> weeklyTotals.setScs(true));
             Optional.of(dailyPractice.getPf()).filter(pfCount -> pfCount > 0).ifPresent(p -> weeklyTotals.setPf(true));
+            Optional.of(dailyPractice.getRr()).filter(rrCount -> rrCount > 0).ifPresent(p -> weeklyTotals.setRr(true));
             Optional.of(dailyPractice.getBgCount()).filter(bgCount -> bgCount > 0).ifPresent(p -> weeklyTotals.setBg(true));
             Optional.of(dailyPractice.getSpPostCount()).filter(spCount -> spCount > 0).ifPresent(p -> weeklyTotals.setSp(true));
             Optional.of(dailyPractice.getOtCount()).filter(otCount -> otCount > 0).ifPresent(p -> weeklyTotals.setOt(true));

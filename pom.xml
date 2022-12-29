@@ -9,8 +9,8 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.soulpeace</groupId>
-    <artifactId>sbc</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>sbc-be</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
     <name>sbc</name>
     <description>POC for SBC</description>
     <properties>

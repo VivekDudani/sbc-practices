@@ -40,7 +40,7 @@ public class SampleDataLoader implements CommandLineRunner {
 
     private void addDailyPracticeAndUserDetailsData(Faker faker) {
         List<String> userNames = List.of("radhe.krishna", "mahaprabhu", "ram");
-        List<DailyPractices> dailyPracticesList = IntStream.rangeClosed(1,20)
+        List<DailyPractices> dailyPracticesList = IntStream.rangeClosed(1, 200)
                 .mapToObj(i -> {
 //                    UserDetails userDetails = new UserDetails(faker.name().username(), faker.name().fullName(), faker.bool().bool(), null);
                     LocalDate practiceDate = LocalDate.ofInstant(faker.date().past(10, TimeUnit.DAYS).toInstant(), ZoneId.of("UTC")); /*LocalDate.now()*/ /*new Timestamp(Instant.now().toEpochMilli())*/
@@ -49,7 +49,8 @@ public class SampleDataLoader implements CommandLineRunner {
                             practiceDate,
                             faker.bool().bool(), faker.bool().bool(),
                             faker.random().nextInt(100), faker.random().nextInt(10), faker.random().nextInt(5),
-                            faker.random().nextInt(5), faker.random().nextInt(10), "SP-"+faker.random().nextInt(550),
+                            faker.random().nextInt(5), faker.random().nextInt(10), faker.random().nextInt(10),
+                            "SP-"+faker.random().nextInt(650),
                             faker.random().nextInt(3), "BG-"+faker.random().nextInt(55),
                             faker.random().nextInt(5), "Others",
                             faker.bool().bool(), null);

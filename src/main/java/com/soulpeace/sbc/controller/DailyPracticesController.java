@@ -53,7 +53,7 @@ public class DailyPracticesController {
                                                               @Argument LocalDate practiceEndDate) {
         log.info("getPracticesByUserNameAndDate invoked for {}" + userName + " and " + practiceStartDate + " and "
                 + practiceEndDate);
-        return dailyPracticesService.getPracticesByUserNameAndDate(userName, practiceStartDate, practiceEndDate);
+        return dailyPracticesService.getPracticesByUserNameAndDateSortedByDate(userName, practiceStartDate, practiceEndDate);
     }
 
     @QueryMapping
@@ -67,19 +67,19 @@ public class DailyPracticesController {
     }
 
     @QueryMapping
-    public UserDetails activateDeactivateUser(String userName, boolean isActive) {
+    public UserDetails activateDeactivateUser(@Argument String userName, @Argument boolean isActive) {
         return userDetailsService.activateDeactivateUser(userName, isActive);
     }
 
     @QueryMapping
-    public List<WeeklyTotals> getWeeklyTotalsForTheWeek(LocalDate dateOfTheWeek) {
+    public List<WeeklyTotals> getWeeklyTotalsForTheWeek(@Argument LocalDate dateOfTheWeek) {
         return weeklyTotalsService.getWeeklyTotalsForTheWeek(dateOfTheWeek);
     }
 
     @MutationMapping
     public DailyPractices createOrUpdateDailyPractice(@Argument String userName, @Argument String fullName, @Argument LocalDate practiceDate,
                                                       @Argument Boolean ssip, @Argument Boolean spp, @Argument Integer chanting,
-                                                      @Argument Integer hkm, @Argument Integer scs, @Argument Integer pf,
+                                                      @Argument Integer hkm, @Argument Integer scs, @Argument Integer pf, @Argument Integer rr,
                                                       @Argument Integer spPostCount, @Argument String spPost, @Argument Integer bgCount,
                                                       @Argument String bg, @Argument Integer otCount, @Argument String others,
                                                       @Argument boolean isUserAuthenticated, @Argument String userCreatedBy) {
@@ -88,7 +88,7 @@ public class DailyPracticesController {
         //TODO Exception handling
         UserDetails userDetail = userDetailsService.getOrCreateUserDetails(userName, fullName, isUserAuthenticated, userCreatedBy);
         weekInfoService.addWeekInformation(practiceDate);
-        return dailyPracticesService.addDailyPractices(userDetail, practiceDate, ssip, spp, chanting, hkm, scs, pf, spPostCount,
+        return dailyPracticesService.addDailyPractices(userDetail, practiceDate, ssip, spp, chanting, hkm, scs, pf, rr, spPostCount,
                 spPost, bgCount, bg, otCount, others);
     }
 }

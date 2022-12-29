@@ -17,6 +17,7 @@ type DailyPractices {
   hkm: Int
   scs: Int
   pf: Int
+  rr: Int
   bgCount: Int
   bg: String
   spPostCount : Int
@@ -35,6 +36,7 @@ type WeeklyTotals {
   hkm: Boolean
   scs: Boolean
   pf: Boolean
+  rr: Boolean
   bg: Boolean
   sp: Boolean
   ot: Boolean
@@ -72,6 +74,6 @@ type Query {
 
 type Mutation {
   createOrUpdateDailyPractice(userName: String!, fullName: String, practiceDate: Date!, ssip: Boolean, spp: Boolean,
-    chanting: Int, hkm: Int, scs: Int, pf: Int, bgCount: Int, bg: String, spPostCount: Int, spPost: String, otCount: Int,
+    chanting: Int, hkm: Int, scs: Int, pf: Int, rr: Int, bgCount: Int, bg: String, spPostCount: Int, spPost: String, otCount: Int,
     others: String, isUserAuthenticated: Boolean, userCreatedBy: String) : DailyPractices
 }

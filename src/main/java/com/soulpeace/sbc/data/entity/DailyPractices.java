@@ -39,6 +39,7 @@ public class DailyPractices {
     private Integer hkm = 0;
     private Integer scs = 0;
     private Integer pf = 0;
+    private Integer rr = 0;
 
     @Column(name = "sp_posts_count")
     private Integer spPostCount = 0;
