@@ -58,6 +58,23 @@ public class WeeklyPracticeAggregatorImpl implements WeeklyPracticeAggregator {
         return aggregate(allPracticesForTheWeek);
     }
 
+    @Override
+    public WeeklyTotals aggregatePracticesForUser(String userName, LocalDate practiceDate) {
+        weekInfo = weekInfoService.getWeekInformationByGivenDate(practiceDate);
+        if (weekInfo == null) {
+            return null;
+        }
+        LocalDate weekStartDate = weekInfo.getWeekStartDate();
+        LocalDate weekEndDate = weekInfo.getWeekEndDate();
+        List<DailyPractices> practices = dailyPracticesService.getPracticesByUserNameAndDateSortedByDate(userName,
+                weekStartDate, weekEndDate);
+        if(!practices.isEmpty()) {
+            List<WeeklyTotals> weeklyTotal = aggregate(practices);
+            return weeklyTotal.get(0);
+        }
+        return null;
+    }
+
     private List<WeeklyTotals> aggregate(List<DailyPractices> allPracticesForTheWeek) {
 
         List<WeeklyTotals> weeklyTotalsAggregated = new ArrayList<>(10);
@@ -70,6 +87,18 @@ public class WeeklyPracticeAggregatorImpl implements WeeklyPracticeAggregator {
 
                 //aggregate previous user and save
                 aggregatePreviousUserPractices(weeklyTotalsAggregated, previousUser);
+
+                //check if totals entry already exist for this user
+                weeklyTotals = Optional.ofNullable(weeklyTotalsService.getWeeklyTotalForTheGivenWeekAndUser(currUser, weekInfo))
+                        .orElse(new WeeklyTotals());
+                weeklyTotals.resetPractices();
+            }
+            //for the very first user
+            else if (previousUser == null && weeklyTotals == null) {
+                //check if totals entry already exist for this user
+                weeklyTotals = Optional.ofNullable(weeklyTotalsService.getWeeklyTotalForTheGivenWeekAndUser(currUser, weekInfo))
+                        .orElse(new WeeklyTotals());
+                weeklyTotals.resetPractices();
             }
             //accumulate practice data
             Optional.of(dailyPractice.getSsip()).ifPresent(s -> ssipCountPerUser.getAndIncrement());
@@ -105,7 +134,7 @@ public class WeeklyPracticeAggregatorImpl implements WeeklyPracticeAggregator {
     }
 
     private void initializeVars() {
-        weeklyTotals = new WeeklyTotals();
+        weeklyTotals = null;
         ssipCountPerUser = new AtomicInteger();
         sppCountPerUser = new AtomicInteger();
     }

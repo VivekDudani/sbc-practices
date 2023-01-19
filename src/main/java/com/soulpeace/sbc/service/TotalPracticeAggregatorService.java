@@ -5,9 +5,9 @@ import com.soulpeace.sbc.data.entity.WeeklyTotals;
 import java.time.LocalDate;
 import java.util.List;
 
-public interface WeeklyPracticeAggregator {
+public interface TotalPracticeAggregatorService {
 
     List<WeeklyTotals> aggregateAllPracticesForGivenWeek(LocalDate practiceDate);
 
-    WeeklyTotals aggregatePracticesForUser(String userName, LocalDate practiceDate);
+    WeeklyTotals aggregatePracticesForGivenUserAndWeek(String userName, LocalDate practiceDate);
 }

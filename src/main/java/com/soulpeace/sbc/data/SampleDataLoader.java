@@ -35,7 +35,7 @@ public class SampleDataLoader implements CommandLineRunner {
         log.info("Loading sample data...");
         Faker faker = new Faker();
 
-        addDailyPracticeAndUserDetailsData(faker);
+//        addDailyPracticeAndUserDetailsData(faker);
     }
 
     private void addDailyPracticeAndUserDetailsData(Faker faker) {

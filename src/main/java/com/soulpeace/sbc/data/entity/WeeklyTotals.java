@@ -10,7 +10,9 @@ import javax.persistence.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-@Table
+@Table (uniqueConstraints ={
+        @UniqueConstraint(columnNames = {"week_info_id", "user_details_id"})
+})
 public class WeeklyTotals {
 
     @Id
@@ -51,5 +53,18 @@ public class WeeklyTotals {
 
     public void incrementChantingCountBy(int count) {
         chanting += count;
+    }
+
+    public void resetPractices() {
+        ssip = false;
+        spp = false;
+        chanting = 0;
+        hkm = false;
+        scs = false;
+        pf = false;
+        rr = false;
+        sp = false;
+        bg = false;
+        ot = false;
     }
 }

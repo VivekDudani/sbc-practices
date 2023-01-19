@@ -27,7 +27,7 @@ public class DailyPracticesController {
 
     private final WeekInfoService weekInfoService;
 
-    private final WeeklyPracticeAggregator weeklyPracticeAggregator;
+    private final TotalPracticeAggregatorService totalPracticeAggregatorService;
 
     private final WeeklyTotalsService weeklyTotalsService;
 
@@ -63,7 +63,7 @@ public class DailyPracticesController {
 
     @QueryMapping
     public List<WeeklyTotals> aggregateAllPracticesForGivenWeek(@Argument LocalDate practiceDate) {
-        return weeklyPracticeAggregator.aggregateAllPracticesForGivenWeek(practiceDate);
+        return totalPracticeAggregatorService.aggregateAllPracticesForGivenWeek(practiceDate);
     }
 
     @QueryMapping
@@ -73,7 +73,7 @@ public class DailyPracticesController {
 
     @QueryMapping
     public List<WeeklyTotals> getWeeklyTotalsForTheWeek(@Argument LocalDate dateOfTheWeek) {
-        return weeklyTotalsService.getWeeklyTotalsForTheWeek(dateOfTheWeek);
+        return weeklyTotalsService.getWeeklyTotalsForTheWeekSortedByUserDetails(dateOfTheWeek);
     }
 
     @MutationMapping
@@ -88,7 +88,12 @@ public class DailyPracticesController {
         //TODO Exception handling
         UserDetails userDetail = userDetailsService.getOrCreateUserDetails(userName, fullName, isUserAuthenticated, userCreatedBy);
         weekInfoService.addWeekInformation(practiceDate);
-        return dailyPracticesService.addDailyPractices(userDetail, practiceDate, ssip, spp, chanting, hkm, scs, pf, rr, spPostCount,
+        DailyPractices dailyPractices = dailyPracticesService.addDailyPractices(userDetail, practiceDate, ssip, spp, chanting, hkm, scs, pf, rr, spPostCount,
                 spPost, bgCount, bg, otCount, others);
+
+        // Aggregate totals for this user
+        totalPracticeAggregatorService.aggregatePracticesForGivenUserAndWeek(userName, practiceDate);
+
+        return dailyPractices;
     }
 }

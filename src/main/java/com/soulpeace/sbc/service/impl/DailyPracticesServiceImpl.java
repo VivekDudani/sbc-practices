@@ -2,9 +2,11 @@ package com.soulpeace.sbc.service.impl;
 
 import com.soulpeace.sbc.data.entity.DailyPractices;
 import com.soulpeace.sbc.data.entity.UserDetails;
+import com.soulpeace.sbc.data.entity.WeeklyTotals;
 import com.soulpeace.sbc.data.model.PracticeDataWrapper;
 import com.soulpeace.sbc.data.repository.DailyPracticesRepository;
 import com.soulpeace.sbc.service.DailyPracticesService;
+import com.soulpeace.sbc.service.WeeklyTotalsService;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Component;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @AllArgsConstructor
@@ -19,6 +22,8 @@ import java.util.List;
 public class DailyPracticesServiceImpl implements DailyPracticesService {
 
     private final DailyPracticesRepository dailyPracticesRepository;
+
+    private final WeeklyTotalsService weeklyTotalsService;
 
     @Override
     public DailyPractices addDailyPractices(UserDetails userDetail, LocalDate practiceDate, Boolean ssip, Boolean spp, Integer chanting,
@@ -79,11 +84,14 @@ public class DailyPracticesServiceImpl implements DailyPracticesService {
         List<DailyPractices> dailyPractices = dailyPracticesRepository.
                 findByDateBetweenOrderByUserDetailsAndDate(practiceStartDate, practiceEndDate);
 
+        // get the totals
+        Map<String, WeeklyTotals> weeklyTotalPerUserForTheGivenWeek = weeklyTotalsService.getWeeklyTotalPerUserForTheGivenWeek(practiceStartDate);
+
         //        System.out.println(wrapper);
-        return getSbcPracticesWrapper(dailyPractices);
+        return getSbcPracticesWrapper(dailyPractices, weeklyTotalPerUserForTheGivenWeek);
     }
 
-    private List<PracticeDataWrapper> getSbcPracticesWrapper(List<DailyPractices> dailyPractices) {
+    private List<PracticeDataWrapper> getSbcPracticesWrapper(List<DailyPractices> dailyPractices, Map<String, WeeklyTotals> weeklyTotalsForAllUsers) {
         List<PracticeDataWrapper> wrapper = new ArrayList<>(10);
         String prevUser = "";
         List<DailyPractices> individualPractices = new ArrayList<>(7);
@@ -91,14 +99,14 @@ public class DailyPracticesServiceImpl implements DailyPracticesService {
         for (DailyPractices dp : dailyPractices) {
             String currUser = dp.getUserDetails().getUserName();
             if (!currUser.equals(prevUser) && !prevUser.equals("")) {
-                wrapper.add(new PracticeDataWrapper(prevUser, individualPractices));
+                wrapper.add(new PracticeDataWrapper(prevUser, individualPractices, weeklyTotalsForAllUsers.get(prevUser)));
                 individualPractices = new ArrayList<>(7);
             }
             individualPractices.add(dp);
             prevUser = currUser;
         }
         //last entry
-        wrapper.add(new PracticeDataWrapper(prevUser, individualPractices));
+        wrapper.add(new PracticeDataWrapper(prevUser, individualPractices, weeklyTotalsForAllUsers.get(prevUser)));
 
         return wrapper;
     }

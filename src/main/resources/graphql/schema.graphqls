@@ -51,6 +51,7 @@ type WeekInfo {
 type SbcPractices {
   userName: String
   practices: [DailyPractices]
+  practiceTotal: WeeklyTotals
 }
 
 #input {
@@ -73,7 +74,7 @@ type Query {
 }
 
 type Mutation {
-  createOrUpdateDailyPractice(userName: String!, fullName: String, practiceDate: Date!, ssip: Boolean, spp: Boolean,
+  createOrUpdateDailyPractice(userName: String!, fullName: String!, practiceDate: Date!, ssip: Boolean, spp: Boolean,
     chanting: Int, hkm: Int, scs: Int, pf: Int, rr: Int, bgCount: Int, bg: String, spPostCount: Int, spPost: String, otCount: Int,
     others: String, isUserAuthenticated: Boolean, userCreatedBy: String) : DailyPractices
 }

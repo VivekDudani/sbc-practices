@@ -12,7 +12,6 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-//@Table
 @Table (uniqueConstraints ={
         @UniqueConstraint(columnNames = {"weekNumber", "weekStartDate"})
 })

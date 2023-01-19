@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.soulpeace</groupId>
     <artifactId>sbc-be</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
+    <version>1.0.0</version>
     <name>sbc</name>
     <description>POC for SBC</description>
     <properties>
@@ -46,6 +46,10 @@
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <version>8.0.28</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mariadb.jdbc</groupId>
+            <artifactId>mariadb-java-client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
